@@ -1,73 +1,144 @@
-# React + TypeScript + Vite
+# 🍳 Recipe App Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Una aplicación web moderna para gestionar recetas de cocina, construida con React, TypeScript y Vite.
 
-Currently, two official plugins are available:
+## ✨ Características
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🔐 **Autenticación de usuarios** - Sistema completo de login y registro
+- 📝 **Gestión de recetas** - Crear, editar, ver y eliminar recetas
+- 🏷️ **Tags e ingredientes** - Organiza tus recetas con etiquetas y gestiona ingredientes
+- 👤 **Perfil de usuario** - Gestiona tu información personal
+- 📱 **Diseño responsive** - Funciona perfectamente en móviles y escritorio
+- 🎨 **UI moderna** - Interfaz construida con Tailwind CSS y componentes Radix UI
 
-## React Compiler
+## 🚀 Tecnologías
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+- **React 19** - Biblioteca de UI
+- **TypeScript** - Tipado estático
+- **Vite** - Build tool y dev server
+- **React Router** - Navegación
+- **Axios** - Cliente HTTP
+- **React Hook Form** - Gestión de formularios
+- **Zod** - Validación de esquemas
+- **Tailwind CSS** - Estilos
+- **Radix UI** - Componentes accesibles
+- **Lucide React** - Iconos
 
-## Expanding the ESLint configuration
+## 📋 Prerequisitos
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js (versión 18 o superior)
+- pnpm (recomendado) o npm
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛠️ Instalación
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+1. **Clona el repositorio**
+   ```bash
+   git clone <url-del-repositorio>
+   cd recipe-app-frontend
+   ```
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+2. **Instala las dependencias**
+   ```bash
+   pnpm install
+   # o
+   npm install
+   ```
+
+3. **Configura las variables de entorno**
+   
+   Crea un archivo `.env.local` basado en `.env.example`:
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Edita `.env.local` y configura la URL de tu backend:
+   ```env
+   VITE_API_URL=https://tu-backend-url.com/api
+   ```
+
+## 🏃‍♂️ Uso
+
+### Desarrollo
+
+Inicia el servidor de desarrollo:
+```bash
+pnpm dev
+# o
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+La aplicación estará disponible en `http://localhost:5173`
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Build para producción
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Genera el build optimizado:
+```bash
+pnpm build
+# o
+npm run build
 ```
+
+### Preview del build
+
+Previsualiza el build de producción localmente:
+```bash
+pnpm preview
+# o
+npm run preview
+```
+
+### Linting
+
+Ejecuta el linter:
+```bash
+pnpm lint
+# o
+npm run lint
+```
+
+## 📁 Estructura del Proyecto
+
+```
+recipe-app-frontend/
+├── public/              # Archivos estáticos
+├── src/
+│   ├── assets/         # Imágenes y recursos
+│   ├── core/
+│   │   ├── components/ # Componentes reutilizables
+│   │   ├── hooks/      # Custom hooks
+│   │   ├── lib/        # Utilidades y configuraciones
+│   │   ├── pages/      # Páginas de la aplicación
+│   │   ├── routes/     # Configuración de rutas
+│   │   ├── services/   # Servicios API
+│   │   ├── types/      # Tipos TypeScript
+│   │   └── utils/      # Funciones auxiliares
+│   ├── App.tsx         # Componente principal
+│   └── main.tsx        # Punto de entrada
+├── index.html          # HTML principal
+└── package.json        # Dependencias y scripts
+```
+
+## 🔑 Rutas Principales
+
+- `/login` - Inicio de sesión
+- `/register` - Registro de usuario
+- `/recipes` - Lista de recetas
+- `/recipes/create` - Crear nueva receta
+- `/recipes/:id` - Detalle de receta
+- `/recipes/:id/edit` - Editar receta
+- `/tags` - Gestión de etiquetas
+- `/ingredients` - Gestión de ingredientes
+- `/profile` - Perfil de usuario
+
+## 🔒 Rutas Protegidas
+
+Todas las rutas excepto `/login` y `/register` requieren autenticación. Los usuarios no autenticados serán redirigidos al login.
+
+## 🌐 Despliegue
+
+El proyecto está configurado para desplegarse en Vercel. El archivo `vercel.json` incluye la configuración necesaria para el enrutamiento SPA.
+
+
+## 👥 Autor
+
+María Victoria Pérez Contrera
