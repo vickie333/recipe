@@ -6,6 +6,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import type { Recipe } from "@/core/types";
+import { recipesService } from "@/core/services/recipes.service";
 import { Spinner } from "@/core/components/ui/spinner";
 import { Button } from "@/core/components/ui/button";
 import { Input } from "@/core/components/ui/input";
@@ -20,7 +21,6 @@ import {
 import { Alert, AlertDescription } from "@/core/components/ui/alert";
 import { Plus, Trash2, Upload, ChevronLeft, Save } from "lucide-react";
 import { getImageUrl } from "@/core/utils/helpers";
-import apiClient, { uploadBlobImage } from "@/core/lib/apiClient";
 
 const recipeSchema = z.object({
   title: z.string().min(1, "Title is required").max(300),
@@ -85,7 +85,7 @@ export default function RecipeForm() {
     if (isEditMode) {
       const fetchRecipe = async () => {
         try {
-          const data = await apiClient.get<Recipe>(`/recipe/recipe/${id}/`);
+          const data = await recipesService.getById(Number(id));
           reset({
             title: data.title,
             description: data.description || "",
@@ -127,31 +127,31 @@ export default function RecipeForm() {
 
     try {
       let recipeId: number;
-      const payload = { ...formData };
 
-      // Handle image upload if a new file was selected
+      // Preparar payload con todos los datos del formulario
+      const payload: any = {
+        title: formData.title,
+        description: formData.description,
+        time_minutes: formData.time_minutes,
+        price: formData.price,
+        link: formData.link,
+        tags: formData.tags,
+        ingredients: formData.ingredients,
+      };
+
+      // Si hay un archivo de imagen, agregarlo al payload
       if (imageFile) {
-        try {
-          const imageUrl = await uploadBlobImage(imageFile);
-          payload.image = imageUrl;
-        } catch (uploadErr: any) {
-          setError("Failed to upload image. Please try again.");
-          setIsSubmitting(false);
-          return;
-        }
+        payload.image_file = imageFile;
+      } else if (formData.image) {
+        // Si no hay archivo nuevo pero hay una imagen existente, mantenerla
+        payload.image = formData.image;
       }
 
       if (isEditMode) {
-        const response = await apiClient.patch<Recipe>(
-          `/recipe/recipe/${id}/`,
-          payload
-        );
+        const response = await recipesService.update(Number(id), payload);
         recipeId = response.id;
       } else {
-        const response = await apiClient.post<Recipe>(
-          "/recipe/recipe/",
-          payload
-        );
+        const response = await recipesService.create(payload);
         recipeId = response.id;
       }
 

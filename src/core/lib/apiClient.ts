@@ -92,17 +92,45 @@ export const setAuthToken = (token?: string) => {
   }
 };
 
+/**
+ * Tipo de respuesta de Vercel Blob
+ */
+interface BlobUploadResponse {
+  success: boolean;
+  blob: {
+    url: string;
+    downloadUrl: string;
+    pathname: string;
+    contentType: string;
+    contentDisposition: string;
+  };
+  message: string;
+}
+
+/**
+ * Subir imagen a Vercel Blob
+ * @param file - Archivo a subir
+ * @returns URL de la imagen subida
+ */
 export const uploadBlobImage = async (file: File): Promise<string> => {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await (apiClient.post("/recipe/blob/upload/", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  }) as any);
+  const response = await apiClient.post<BlobUploadResponse>(
+    "/recipe/blob/upload/",
+    formData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
 
-  return response.blob.url;
+  if (response.success && response.blob.url) {
+    return response.blob.url;
+  }
+
+  throw new Error(response.message || 'No se recibió URL de la imagen');
 };
 
 export default apiClient;
