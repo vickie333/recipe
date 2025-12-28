@@ -15,7 +15,7 @@ export default function RecipeCard({ recipe }: RecipeCardProps) {
       <Link to={`/recipes/${recipe.id}`} className="block">
         <div className="aspect-video w-full overflow-hidden bg-muted relative">
           <img
-            src={recipe.image ? getImageUrl(recipe.image) : "/placeholder.svg?height=400&width=600&query=delicious+food+recipe"}
+            src={recipe.image ? getImageUrl(recipe.image) : ""}
             alt={recipe.title}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />

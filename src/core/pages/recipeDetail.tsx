@@ -86,11 +86,7 @@ export default function RecipeDetail() {
         <div className="space-y-6">
           <div className="aspect-video rounded-xl overflow-hidden bg-muted border shadow-sm">
             <img
-              src={
-                recipe.image
-                  ? getImageUrl(recipe.image)
-                  : "/placeholder.svg?height=600&width=800&query=finished+recipe+dish"
-              }
+              src={recipe.image ? getImageUrl(recipe.image) : ""}
               alt={recipe.title}
               className="w-full h-full object-cover"
             />

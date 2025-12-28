@@ -1,15 +1,37 @@
-export function getImageUrl(path: string | undefined): string | undefined {
+export function getImageUrl(path: any): string | undefined {
     if (!path) return undefined
-    if (path.startsWith("http")) return path
 
-    const apiUrl = import.meta.env.VITE_API_URL
+    // If the backend returns an object (like the Vercel Blob response), extract the URL
+    let url = typeof path === 'object' ? path.url || path.image || path.path : path
+
+    if (typeof url !== 'string') return undefined
+    if (url.startsWith("http")) return url
+
+    // Use the same logic as apiClient.ts for the base URL
+    const apiUrl = import.meta.env.VITE_API_URL ||
+        (import.meta.env.DEV
+            ? "http://localhost:8000/api"
+            : "https://recipe-app-gamma-gold.vercel.app/api");
+
     if (apiUrl) {
-        const cleanUrl = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl
-        const cleanPath = path.startsWith('/') ? path : `/${path}`
+        // Remove /api from the end if it exists
+        const baseUrl = apiUrl.replace(/\/api$/, '')
+        const cleanUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl
+
+        // Ensure the path starts with /
+        let cleanPath = url.startsWith('/') ? url : `/${url}`
+
+        // If it's a local media path and doesn't have /media/, add it (common in Django)
+        if (!cleanPath.startsWith('/media/') && !cleanPath.startsWith('/static/')) {
+            // Only add /media/ if it's not a full URL and doesn't look like a direct path
+            // This is a heuristic, adjust if necessary
+            // cleanPath = `/media${cleanPath}`
+        }
+
         return `${cleanUrl}${cleanPath}`
     }
 
-    return path
+    return url
 }
 
 export function formatPrice(price: string | number): string {
