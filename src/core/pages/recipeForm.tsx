@@ -5,7 +5,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import type { Recipe } from "@/core/types";
 import { recipesService } from "@/core/services/recipes.service";
 import { Spinner } from "@/core/components/ui/spinner";
 import { Button } from "@/core/components/ui/button";
