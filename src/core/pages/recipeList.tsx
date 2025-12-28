@@ -1,12 +1,12 @@
-import { useState, useEffect, useCallback } from "react"
-import { useSearchParams, Link } from "react-router-dom"
-import type { RecipeListItem, Tag, Ingredient } from "@/core/types"
-import RecipeCard from "@/core/components/recipeCard"
-import { Spinner } from "@/core/components/ui/spinner"
-import { Button } from "@/core/components/ui/button"
-import { Input } from "@/core/components/ui/input"
-import { Badge } from "@/core/components/ui/badge"
-import { Plus, Search, Filter, X } from "lucide-react"
+import { useState, useEffect, useCallback } from "react";
+import { useSearchParams, Link } from "react-router-dom";
+import type { RecipeListItem, Tag, Ingredient } from "@/core/types";
+import RecipeCard from "@/core/components/recipeCard";
+import { Spinner } from "@/core/components/ui/spinner";
+import { Button } from "@/core/components/ui/button";
+import { Input } from "@/core/components/ui/input";
+import { Badge } from "@/core/components/ui/badge";
+import { Plus, Search, Filter, X } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -15,107 +15,120 @@ import {
   SheetTrigger,
   SheetFooter,
   SheetClose,
-} from "@/core/components/ui/sheet"
-import { Checkbox } from "@/core/components/ui/checkbox"
-import { Label } from "@/core/components/ui/label"
-import { Separator } from "@/core/components/ui/separator"
-import apiClient from "@/core/lib/apiClient"
+} from "@/core/components/ui/sheet";
+import { Checkbox } from "@/core/components/ui/checkbox";
+import { Label } from "@/core/components/ui/label";
+import { Separator } from "@/core/components/ui/separator";
+import apiClient from "@/core/lib/apiClient";
 
 export default function RecipesList() {
-  const [recipes, setRecipes] = useState<RecipeListItem[]>([])
-  const [tags, setTags] = useState<Tag[]>([])
-  const [ingredients, setIngredients] = useState<Ingredient[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [recipes, setRecipes] = useState<RecipeListItem[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
+  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedTags, setSelectedTags] = useState<number[]>(
     searchParams
       .get("tags")
       ?.split(",")
       .map(Number)
-      .filter((n) => !isNaN(n)) || [],
-  )
+      .filter((n) => !isNaN(n)) || []
+  );
   const [selectedIngredients, setSelectedIngredients] = useState<number[]>(
     searchParams
       .get("ingredients")
       ?.split(",")
       .map(Number)
-      .filter((n) => !isNaN(n)) || [],
-  )
+      .filter((n) => !isNaN(n)) || []
+  );
 
   const fetchFilters = async () => {
     try {
-      const [tagsResponse, ingredientsResponse] = await Promise.all([
+      const [tagsData, ingredientsData] = await Promise.all([
         apiClient.get<Tag[]>("/recipe/tags/?assigned_only=1"),
         apiClient.get<Ingredient[]>("/recipe/ingredients/?assigned_only=1"),
-      ])
-      setTags(tagsResponse.data)
-      setIngredients(ingredientsResponse.data)
+      ]);
+      setTags(tagsData);
+      setIngredients(ingredientsData);
     } catch (error) {
-      console.error("Failed to fetch filters:", error)
+      console.error("Failed to fetch filters:", error);
     }
-  }
+  };
 
   const fetchRecipes = useCallback(async () => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      const params = new URLSearchParams()
-      if (selectedTags.length > 0) params.append("tags", selectedTags.join(","))
-      if (selectedIngredients.length > 0) params.append("ingredients", selectedIngredients.join(","))
+      const params = new URLSearchParams();
+      if (selectedTags.length > 0)
+        params.append("tags", selectedTags.join(","));
+      if (selectedIngredients.length > 0)
+        params.append("ingredients", selectedIngredients.join(","));
 
-      const response = await apiClient.get<RecipeListItem[]>(`/recipe/recipe/?${params.toString()}`)
+      const data = await apiClient.get<RecipeListItem[]>(
+        `/recipe/recipe/?${params.toString()}`
+      );
 
       // Client-side search for title (as API documentation doesn't specify a search param)
       const filteredData = searchQuery
-        ? response.data.filter((r) => r.title.toLowerCase().includes(searchQuery.toLowerCase()))
-        : response.data
+        ? data.filter((r) =>
+            r.title.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+        : data;
 
-      setRecipes(filteredData)
+      setRecipes(filteredData);
     } catch (error) {
-      console.error("Failed to fetch recipes:", error)
+      console.error("Failed to fetch recipes:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [selectedTags, selectedIngredients, searchQuery])
+  }, [selectedTags, selectedIngredients, searchQuery]);
 
   useEffect(() => {
-    fetchFilters()
-  }, [])
+    fetchFilters();
+  }, []);
 
   useEffect(() => {
-    fetchRecipes()
-  }, [fetchRecipes])
+    fetchRecipes();
+  }, [fetchRecipes]);
 
   const toggleTag = (id: number) => {
-    setSelectedTags((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]))
-  }
+    setSelectedTags((prev) =>
+      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]
+    );
+  };
 
   const toggleIngredient = (id: number) => {
-    setSelectedIngredients((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]))
-  }
+    setSelectedIngredients((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
 
   const applyFilters = () => {
-    const params: any = {}
-    if (selectedTags.length > 0) params.tags = selectedTags.join(",")
-    if (selectedIngredients.length > 0) params.ingredients = selectedIngredients.join(",")
-    setSearchParams(params)
-  }
+    const params: any = {};
+    if (selectedTags.length > 0) params.tags = selectedTags.join(",");
+    if (selectedIngredients.length > 0)
+      params.ingredients = selectedIngredients.join(",");
+    setSearchParams(params);
+  };
 
   const clearFilters = () => {
-    setSelectedTags([])
-    setSelectedIngredients([])
-    setSearchParams({})
-  }
+    setSelectedTags([]);
+    setSelectedIngredients([]);
+    setSearchParams({});
+  };
 
-  const activeFiltersCount = selectedTags.length + selectedIngredients.length
+  const activeFiltersCount = selectedTags.length + selectedIngredients.length;
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">My Recipes</h1>
-          <p className="text-muted-foreground mt-1">Manage and discover your culinary creations.</p>
+          <p className="text-muted-foreground mt-1">
+            Manage and discover your culinary creations.
+          </p>
         </div>
         <Button asChild>
           <Link to="/recipes/create">
@@ -163,13 +176,18 @@ export default function RecipesList() {
                           checked={selectedTags.includes(tag.id)}
                           onCheckedChange={() => toggleTag(tag.id)}
                         />
-                        <Label htmlFor={`tag-${tag.id}`} className="text-sm cursor-pointer">
+                        <Label
+                          htmlFor={`tag-${tag.id}`}
+                          className="text-sm cursor-pointer"
+                        >
                           {tag.name}
                         </Label>
                       </div>
                     ))
                   ) : (
-                    <p className="text-xs text-muted-foreground italic">No tags found</p>
+                    <p className="text-xs text-muted-foreground italic">
+                      No tags found
+                    </p>
                   )}
                 </div>
               </div>
@@ -187,13 +205,18 @@ export default function RecipesList() {
                           checked={selectedIngredients.includes(ing.id)}
                           onCheckedChange={() => toggleIngredient(ing.id)}
                         />
-                        <Label htmlFor={`ing-${ing.id}`} className="text-sm cursor-pointer">
+                        <Label
+                          htmlFor={`ing-${ing.id}`}
+                          className="text-sm cursor-pointer"
+                        >
                           {ing.name}
                         </Label>
                       </div>
                     ))
                   ) : (
-                    <p className="text-xs text-muted-foreground italic">No ingredients found</p>
+                    <p className="text-xs text-muted-foreground italic">
+                      No ingredients found
+                    </p>
                   )}
                 </div>
               </div>
@@ -215,26 +238,40 @@ export default function RecipesList() {
       {(selectedTags.length > 0 || selectedIngredients.length > 0) && (
         <div className="flex flex-wrap gap-2">
           {selectedTags.map((id) => {
-            const tag = tags.find((t) => t.id === id)
+            const tag = tags.find((t) => t.id === id);
             return (
               tag && (
-                <Badge key={`selected-tag-${id}`} variant="secondary" className="gap-1 px-2 py-1">
+                <Badge
+                  key={`selected-tag-${id}`}
+                  variant="secondary"
+                  className="gap-1 px-2 py-1"
+                >
                   {tag.name}
-                  <X className="h-3 w-3 cursor-pointer" onClick={() => toggleTag(id)} />
+                  <X
+                    className="h-3 w-3 cursor-pointer"
+                    onClick={() => toggleTag(id)}
+                  />
                 </Badge>
               )
-            )
+            );
           })}
           {selectedIngredients.map((id) => {
-            const ing = ingredients.find((i) => i.id === id)
+            const ing = ingredients.find((i) => i.id === id);
             return (
               ing && (
-                <Badge key={`selected-ing-${id}`} variant="secondary" className="gap-1 px-2 py-1">
+                <Badge
+                  key={`selected-ing-${id}`}
+                  variant="secondary"
+                  className="gap-1 px-2 py-1"
+                >
                   {ing.name}
-                  <X className="h-3 w-3 cursor-pointer" onClick={() => toggleIngredient(id)} />
+                  <X
+                    className="h-3 w-3 cursor-pointer"
+                    onClick={() => toggleIngredient(id)}
+                  />
                 </Badge>
               )
-            )
+            );
           })}
         </div>
       )}
@@ -254,15 +291,20 @@ export default function RecipesList() {
           <Utensils className="h-12 w-12 mx-auto text-muted-foreground mb-4 opacity-20" />
           <h3 className="text-lg font-semibold">No recipes found</h3>
           <p className="text-muted-foreground max-w-xs mx-auto mt-2">
-            Try adjusting your search or filters, or create a new recipe to get started.
+            Try adjusting your search or filters, or create a new recipe to get
+            started.
           </p>
-          <Button variant="outline" className="mt-6 bg-transparent" onClick={clearFilters}>
+          <Button
+            variant="outline"
+            className="mt-6 bg-transparent"
+            onClick={clearFilters}
+          >
             <X className="mr-2 h-4 w-4" /> Clear all filters
           </Button>
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // Helper icon not imported
@@ -284,5 +326,5 @@ function Utensils(props: any) {
       <path d="M7 2v20" />
       <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7" />
     </svg>
-  )
+  );
 }

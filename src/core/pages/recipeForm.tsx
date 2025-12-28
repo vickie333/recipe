@@ -1,20 +1,26 @@
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { useParams, useNavigate } from "react-router-dom"
-import { useForm, useFieldArray } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import * as z from "zod"
-import type { Recipe } from "@/core/types"
-import { Spinner } from "@/core/components/ui/spinner"
-import { Button } from "@/core/components/ui/button"
-import { Input } from "@/core/components/ui/input"
-import { Textarea } from "@/core/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/core/components/ui/card"
-import { Alert, AlertDescription } from "@/core/components/ui/alert"
-import { Plus, Trash2, Upload, ChevronLeft, Save } from "lucide-react"
-import { getImageUrl } from "@/core/utils/helpers"
-import apiClient, { uploadBlobImage } from "@/core/lib/apiClient"
+import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import type { Recipe } from "@/core/types";
+import { Spinner } from "@/core/components/ui/spinner";
+import { Button } from "@/core/components/ui/button";
+import { Input } from "@/core/components/ui/input";
+import { Textarea } from "@/core/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/core/components/ui/card";
+import { Alert, AlertDescription } from "@/core/components/ui/alert";
+import { Plus, Trash2, Upload, ChevronLeft, Save } from "lucide-react";
+import { getImageUrl } from "@/core/utils/helpers";
+import apiClient, { uploadBlobImage } from "@/core/lib/apiClient";
 
 const recipeSchema = z.object({
   title: z.string().min(1, "Title is required").max(300),
@@ -23,22 +29,24 @@ const recipeSchema = z.object({
   price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
   link: z.string().url("Invalid URL").optional().or(z.literal("")),
   tags: z.array(z.object({ name: z.string().min(1, "Tag name required") })),
-  ingredients: z.array(z.object({ name: z.string().min(1, "Ingredient name required") })),
+  ingredients: z.array(
+    z.object({ name: z.string().min(1, "Ingredient name required") })
+  ),
   image: z.string().nullable().optional(),
-})
+});
 
-type RecipeFormValues = z.infer<typeof recipeSchema>
+type RecipeFormValues = z.infer<typeof recipeSchema>;
 
 export default function RecipeForm() {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
-  const isEditMode = !!id
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const isEditMode = !!id;
 
-  const [isLoading, setIsLoading] = useState(isEditMode)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(isEditMode);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const {
     register,
@@ -53,8 +61,7 @@ export default function RecipeForm() {
       ingredients: [],
       image: null,
     },
-  })
-
+  });
 
   const {
     fields: tagFields,
@@ -63,7 +70,7 @@ export default function RecipeForm() {
   } = useFieldArray({
     control,
     name: "tags",
-  })
+  });
 
   const {
     fields: ingredientFields,
@@ -72,14 +79,13 @@ export default function RecipeForm() {
   } = useFieldArray({
     control,
     name: "ingredients",
-  })
+  });
 
   useEffect(() => {
     if (isEditMode) {
       const fetchRecipe = async () => {
         try {
-          const response = await apiClient.get<Recipe>(`/recipe/recipe/${id}/`)
-          const data = response.data
+          const data = await apiClient.get<Recipe>(`/recipe/recipe/${id}/`);
           reset({
             title: data.title,
             description: data.description || "",
@@ -89,84 +95,96 @@ export default function RecipeForm() {
             tags: data.tags.map((t) => ({ name: t.name })),
             ingredients: data.ingredients.map((i) => ({ name: i.name })),
             image: data.image,
-          })
+          });
           if (data.image) {
-            setImagePreview(getImageUrl(data.image) || null)
+            setImagePreview(getImageUrl(data.image) || null);
           }
         } catch (err: any) {
-          setError("Failed to load recipe details")
+          setError("Failed to load recipe details");
         } finally {
-          setIsLoading(false)
+          setIsLoading(false);
         }
-      }
-      fetchRecipe()
+      };
+      fetchRecipe();
     }
-  }, [id, isEditMode, reset])
+  }, [id, isEditMode, reset]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const file = e.target.files?.[0];
     if (file) {
-      setImageFile(file)
-      const reader = new FileReader()
+      setImageFile(file);
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const onSubmit = async (formData: RecipeFormValues) => {
-    setIsSubmitting(true)
-    setError(null)
+    setIsSubmitting(true);
+    setError(null);
 
     try {
-      let recipeId: number
-      const payload = { ...formData }
+      let recipeId: number;
+      const payload = { ...formData };
 
       // Handle image upload if a new file was selected
       if (imageFile) {
         try {
-          const imageUrl = await uploadBlobImage(imageFile)
-          payload.image = imageUrl
+          const imageUrl = await uploadBlobImage(imageFile);
+          payload.image = imageUrl;
         } catch (uploadErr: any) {
-          setError("Failed to upload image. Please try again.")
-          setIsSubmitting(false)
-          return
+          setError("Failed to upload image. Please try again.");
+          setIsSubmitting(false);
+          return;
         }
       }
 
       if (isEditMode) {
-        const response = await apiClient.patch<Recipe>(`/recipe/recipe/${id}/`, payload)
-        recipeId = response.data.id
+        const response = await apiClient.patch<Recipe>(
+          `/recipe/recipe/${id}/`,
+          payload
+        );
+        recipeId = response.id;
       } else {
-        const response = await apiClient.post<Recipe>("/recipe/recipe/", payload)
-        recipeId = response.data.id
+        const response = await apiClient.post<Recipe>(
+          "/recipe/recipe/",
+          payload
+        );
+        recipeId = response.id;
       }
 
-      navigate(`/recipes/${recipeId}`)
+      navigate(`/recipes/${recipeId}`);
     } catch (err: any) {
-      setError(err.message || "An error occurred while saving the recipe")
+      setError(err.message || "An error occurred while saving the recipe");
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   if (isLoading) {
     return (
       <div className="flex justify-center py-20">
         <Spinner size="lg" />
       </div>
-    )
+    );
   }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      <Button variant="ghost" className="pl-0 hover:bg-transparent" onClick={() => navigate(-1)}>
+      <Button
+        variant="ghost"
+        className="pl-0 hover:bg-transparent"
+        onClick={() => navigate(-1)}
+      >
         <ChevronLeft className="mr-1 h-4 w-4" /> Back
       </Button>
 
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">{isEditMode ? "Edit Recipe" : "New Recipe"}</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          {isEditMode ? "Edit Recipe" : "New Recipe"}
+        </h1>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
@@ -179,32 +197,62 @@ export default function RecipeForm() {
         <Card>
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>
-            <CardDescription>Start with the essential details of your dish.</CardDescription>
+            <CardDescription>
+              Start with the essential details of your dish.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2 md:col-span-2">
                 <label className="text-sm font-medium">Recipe Title</label>
-                <Input placeholder="e.g. Grandma's Famous Lasagna" {...register("title")} />
-                {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
+                <Input
+                  placeholder="e.g. Grandma's Famous Lasagna"
+                  {...register("title")}
+                />
+                {errors.title && (
+                  <p className="text-xs text-destructive">
+                    {errors.title.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Preparation Time (minutes)</label>
+                <label className="text-sm font-medium">
+                  Preparation Time (minutes)
+                </label>
                 <Input type="number" {...register("time_minutes")} />
-                {errors.time_minutes && <p className="text-xs text-destructive">{errors.time_minutes.message}</p>}
+                {errors.time_minutes && (
+                  <p className="text-xs text-destructive">
+                    {errors.time_minutes.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Estimated Price ($)</label>
+                <label className="text-sm font-medium">
+                  Estimated Price ($)
+                </label>
                 <Input placeholder="15.50" {...register("price")} />
-                {errors.price && <p className="text-xs text-destructive">{errors.price.message}</p>}
+                {errors.price && (
+                  <p className="text-xs text-destructive">
+                    {errors.price.message}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium">External Link (optional)</label>
-                <Input placeholder="https://example.com/recipe" {...register("link")} />
-                {errors.link && <p className="text-xs text-destructive">{errors.link.message}</p>}
+                <label className="text-sm font-medium">
+                  External Link (optional)
+                </label>
+                <Input
+                  placeholder="https://example.com/recipe"
+                  {...register("link")}
+                />
+                {errors.link && (
+                  <p className="text-xs text-destructive">
+                    {errors.link.message}
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>
@@ -213,13 +261,19 @@ export default function RecipeForm() {
         <Card>
           <CardHeader>
             <CardTitle>Recipe Media</CardTitle>
-            <CardDescription>Add a high-quality photo to make your recipe stand out.</CardDescription>
+            <CardDescription>
+              Add a high-quality photo to make your recipe stand out.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col items-center gap-4">
               <div className="relative group aspect-video w-full max-w-md rounded-xl overflow-hidden border bg-muted flex items-center justify-center">
                 {imagePreview ? (
-                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
                   <Upload className="h-10 w-10 text-muted-foreground opacity-20" />
                 )}
@@ -227,10 +281,17 @@ export default function RecipeForm() {
                   <span className="text-white text-sm font-medium flex items-center gap-2">
                     <Upload className="h-4 w-4" /> Change Image
                   </span>
-                  <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                  />
                 </label>
               </div>
-              <p className="text-xs text-muted-foreground">Supported formats: JPG, PNG, GIF</p>
+              <p className="text-xs text-muted-foreground">
+                Supported formats: JPG, PNG, GIF
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -238,13 +299,20 @@ export default function RecipeForm() {
         <Card>
           <CardHeader>
             <CardTitle>Ingredients & Tags</CardTitle>
-            <CardDescription>List what you need and how to categorize this recipe.</CardDescription>
+            <CardDescription>
+              List what you need and how to categorize this recipe.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-semibold">Ingredients</label>
-                <Button type="button" variant="outline" size="sm" onClick={() => appendIngredient({ name: "" })}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => appendIngredient({ name: "" })}
+                >
                   <Plus className="h-3 w-3 mr-1" /> Add
                 </Button>
               </div>
@@ -252,9 +320,14 @@ export default function RecipeForm() {
                 {ingredientFields.map((field, index) => (
                   <div key={field.id} className="flex gap-2">
                     <div className="flex-1">
-                      <Input placeholder="e.g. 2 Eggs" {...register(`ingredients.${index}.name`)} />
+                      <Input
+                        placeholder="e.g. 2 Eggs"
+                        {...register(`ingredients.${index}.name`)}
+                      />
                       {errors.ingredients?.[index]?.name && (
-                        <p className="text-[10px] text-destructive mt-1">{errors.ingredients[index].name?.message}</p>
+                        <p className="text-[10px] text-destructive mt-1">
+                          {errors.ingredients[index].name?.message}
+                        </p>
                       )}
                     </div>
                     <Button
@@ -279,13 +352,21 @@ export default function RecipeForm() {
             <div className="space-y-4 pt-4 border-t">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-semibold">Tags</label>
-                <Button type="button" variant="outline" size="sm" onClick={() => appendTag({ name: "" })}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => appendTag({ name: "" })}
+                >
                   <Plus className="h-3 w-3 mr-1" /> Add
                 </Button>
               </div>
               <div className="flex flex-wrap gap-3">
                 {tagFields.map((field, index) => (
-                  <div key={field.id} className="flex items-center gap-1 bg-muted px-2 py-1 rounded-md border">
+                  <div
+                    key={field.id}
+                    className="flex items-center gap-1 bg-muted px-2 py-1 rounded-md border"
+                  >
                     <Input
                       className="h-7 w-24 text-xs p-0 focus-visible:ring-0 border-none bg-transparent"
                       placeholder="Tag"
@@ -313,7 +394,9 @@ export default function RecipeForm() {
         <Card>
           <CardHeader>
             <CardTitle>Instructions</CardTitle>
-            <CardDescription>Explain how to prepare this delicious dish.</CardDescription>
+            <CardDescription>
+              Explain how to prepare this delicious dish.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Textarea
@@ -321,27 +404,41 @@ export default function RecipeForm() {
               className="min-h-[200px]"
               {...register("description")}
             />
-            {errors.description && <p className="text-xs text-destructive mt-1">{errors.description.message}</p>}
+            {errors.description && (
+              <p className="text-xs text-destructive mt-1">
+                {errors.description.message}
+              </p>
+            )}
           </CardContent>
         </Card>
 
         <div className="flex justify-end gap-4">
-          <Button type="button" variant="outline" onClick={() => navigate(-1)} disabled={isSubmitting}>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => navigate(-1)}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting} className="min-w-[120px]">
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="min-w-[120px]"
+          >
             {isSubmitting ? (
               <>
                 <Spinner size="sm" className="mr-2" /> Saving...
               </>
             ) : (
               <>
-                <Save className="h-4 w-4 mr-2" /> {isEditMode ? "Update Recipe" : "Save Recipe"}
+                <Save className="h-4 w-4 mr-2" />{" "}
+                {isEditMode ? "Update Recipe" : "Save Recipe"}
               </>
             )}
           </Button>
         </div>
       </form>
     </div>
-  )
+  );
 }
