@@ -29,8 +29,8 @@ export default function RecipeDetail() {
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
-        const data = await apiClient.get<Recipe>(`/recipe/recipe/${id}/`)
-        setRecipe(data)
+        const response = await apiClient.get<Recipe>(`/recipe/recipe/${id}/`)
+        setRecipe(response.data)
       } catch (error) {
         console.error("Failed to fetch recipe:", error)
         navigate("/recipes")

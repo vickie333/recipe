@@ -78,7 +78,8 @@ export default function RecipeForm() {
     if (isEditMode) {
       const fetchRecipe = async () => {
         try {
-          const data = await apiClient.get<Recipe>(`/recipe/recipe/${id}/`)
+          const response = await apiClient.get<Recipe>(`/recipe/recipe/${id}/`)
+          const data = response.data
           reset({
             title: data.title,
             description: data.description || "",
@@ -136,10 +137,10 @@ export default function RecipeForm() {
 
       if (isEditMode) {
         const response = await apiClient.patch<Recipe>(`/recipe/recipe/${id}/`, payload)
-        recipeId = response.id
+        recipeId = response.data.id
       } else {
         const response = await apiClient.post<Recipe>("/recipe/recipe/", payload)
-        recipeId = response.id
+        recipeId = response.data.id
       }
 
       navigate(`/recipes/${recipeId}`)
@@ -286,7 +287,6 @@ export default function RecipeForm() {
                 {tagFields.map((field, index) => (
                   <div key={field.id} className="flex items-center gap-1 bg-muted px-2 py-1 rounded-md border">
                     <Input
-                      variant="ghost"
                       className="h-7 w-24 text-xs p-0 focus-visible:ring-0 border-none bg-transparent"
                       placeholder="Tag"
                       {...register(`tags.${index}.name`)}

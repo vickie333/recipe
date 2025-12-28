@@ -27,8 +27,8 @@ export default function IngredientsList() {
 
   const fetchIngredients = async () => {
     try {
-      const data = await apiClient.get<Ingredient[]>("/recipe/ingredients/")
-      setIngredients(data)
+      const response = await apiClient.get<Ingredient[]>("/recipe/ingredients/")
+      setIngredients(response.data)
     } catch (error) {
       console.error("Failed to fetch ingredients:", error)
     } finally {
@@ -53,8 +53,8 @@ export default function IngredientsList() {
   const handleUpdate = async (id: number) => {
     if (!editName.trim()) return
     try {
-      const updatedIng = await apiClient.patch<Ingredient>(`/recipe/ingredients/${id}/`, { name: editName })
-      setIngredients(ingredients.map((i) => (i.id === id ? updatedIng : i)))
+      const response = await apiClient.patch<Ingredient>(`/recipe/ingredients/${id}/`, { name: editName })
+      setIngredients(ingredients.map((i) => (i.id === id ? response.data : i)))
       setEditingId(null)
     } catch (error) {
       console.error("Failed to update ingredient:", error)

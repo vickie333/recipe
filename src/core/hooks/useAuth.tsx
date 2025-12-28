@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (data: any) => {
     const response = await apiClient.post("/user/token/", data)
-    setAuthToken(response.token)
+    setAuthToken(response.data.token)
     await refreshProfile()
     navigate("/recipes")
   }

@@ -46,12 +46,12 @@ export default function RecipesList() {
 
   const fetchFilters = async () => {
     try {
-      const [tagsData, ingredientsData] = await Promise.all([
+      const [tagsResponse, ingredientsResponse] = await Promise.all([
         apiClient.get<Tag[]>("/recipe/tags/?assigned_only=1"),
         apiClient.get<Ingredient[]>("/recipe/ingredients/?assigned_only=1"),
       ])
-      setTags(tagsData)
-      setIngredients(ingredientsData)
+      setTags(tagsResponse.data)
+      setIngredients(ingredientsResponse.data)
     } catch (error) {
       console.error("Failed to fetch filters:", error)
     }
@@ -64,12 +64,12 @@ export default function RecipesList() {
       if (selectedTags.length > 0) params.append("tags", selectedTags.join(","))
       if (selectedIngredients.length > 0) params.append("ingredients", selectedIngredients.join(","))
 
-      const data = await apiClient.get<RecipeListItem[]>(`/recipe/recipe/?${params.toString()}`)
+      const response = await apiClient.get<RecipeListItem[]>(`/recipe/recipe/?${params.toString()}`)
 
       // Client-side search for title (as API documentation doesn't specify a search param)
       const filteredData = searchQuery
-        ? data.filter((r) => r.title.toLowerCase().includes(searchQuery.toLowerCase()))
-        : data
+        ? response.data.filter((r) => r.title.toLowerCase().includes(searchQuery.toLowerCase()))
+        : response.data
 
       setRecipes(filteredData)
     } catch (error) {

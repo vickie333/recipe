@@ -29,8 +29,8 @@ export default function TagsList() {
 
   const fetchTags = async () => {
     try {
-      const data = await apiClient.get<Tag[]>("/recipe/tags/")
-      setTags(data)
+      const response = await apiClient.get<Tag[]>("/recipe/tags/")
+      setTags(response.data)
     } catch (error) {
       console.error("Failed to fetch tags:", error)
     } finally {
@@ -55,8 +55,8 @@ export default function TagsList() {
   const handleUpdate = async (id: number) => {
     if (!editName.trim()) return
     try {
-      const updatedTag = await apiClient.patch<Tag>(`/recipe/tags/${id}/`, { name: editName })
-      setTags(tags.map((t) => (t.id === id ? updatedTag : t)))
+      const response = await apiClient.patch<Tag>(`/recipe/tags/${id}/`, { name: editName })
+      setTags(tags.map((t) => (t.id === id ? response.data : t)))
       setEditingId(null)
     } catch (error) {
       console.error("Failed to update tag:", error)
