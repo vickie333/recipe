@@ -10,6 +10,14 @@ interface RecipeCardProps {
 }
 
 export default function RecipeCard({ recipe }: RecipeCardProps) {
+  // 🔍 DEBUG: Ver qué valor tiene recipe.image
+  console.log('🔍 RecipeCard Debug:', {
+    recipeId: recipe.id,
+    recipeTitle: recipe.title,
+    rawImage: recipe.image,
+    processedUrl: recipe.image ? getImageUrl(recipe.image) : "NO_IMAGE"
+  });
+
   return (
     <Card className="overflow-hidden transition-all hover:shadow-lg group">
       <Link to={`/recipes/${recipe.id}`} className="block">

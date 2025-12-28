@@ -39,6 +39,15 @@ export default function RecipeDetail() {
     const fetchRecipe = async () => {
       try {
         const data = await apiClient.get<Recipe>(`/recipe/recipe/${id}/`);
+
+        // 🔍 DEBUG: Ver la respuesta completa del backend
+        console.log('🔍 Recipe Detail - Full Response:', data);
+        console.log('🔍 Recipe Image Field:', {
+          rawImage: data.image,
+          type: typeof data.image,
+          processedUrl: data.image ? getImageUrl(data.image) : "NO_IMAGE"
+        });
+
         setRecipe(data);
       } catch (error) {
         console.error("Failed to fetch recipe:", error);
