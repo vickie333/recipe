@@ -70,11 +70,16 @@ export default function RecipesList() {
         `/recipe/recipe/?${params.toString()}`
       );
 
+      // 🔍 DEBUG: Ver la respuesta completa del backend para la lista
+      console.log('🔍 Recipe List - Full Response:', data);
+      console.log('🔍 Recipe List - First Recipe Image:', data[0]?.image);
+      console.log('🔍 Recipe List - Image Type:', typeof data[0]?.image);
+
       // Client-side search for title (as API documentation doesn't specify a search param)
       const filteredData = searchQuery
         ? data.filter((r) =>
-            r.title.toLowerCase().includes(searchQuery.toLowerCase())
-          )
+          r.title.toLowerCase().includes(searchQuery.toLowerCase())
+        )
         : data;
 
       setRecipes(filteredData);
